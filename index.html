@@ -195,54 +195,29 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    /* ── KEBAB MENU ── */
     .link-actions {
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
       flex-shrink: 0;
     }
-    .kebab-btn {
-      background: none;
+    .link-card:hover .link-actions { opacity: 1; }
+    .action-btn {
+      background: var(--surface2);
       border: none;
       color: var(--muted);
-      cursor: pointer;
-      padding: 4px 6px;
       border-radius: 6px;
-      font-size: 1rem;
-      line-height: 1;
-      transition: background .2s, color .2s;
-    }
-    .kebab-btn:hover { background: var(--surface2); color: var(--text); }
-    .kebab-menu {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      z-index: 50;
-      min-width: 120px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.4);
-    }
-    .kebab-menu.open { display: block; }
-    .kebab-item {
+      width: 30px;
+      height: 30px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 9px 14px;
-      font-size: 0.85rem;
-      color: var(--text);
+      justify-content: center;
       cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      transition: background .15s;
+      font-size: 0.85rem;
+      transition: background .2s, color .2s;
     }
-    .kebab-item:hover { background: var(--surface2); }
-    .kebab-item.del { color: #ef4444; }
-    .kebab-item.del:hover { background: rgba(239,68,68,.1); }
+    .action-btn:hover { background: var(--brand); color: #fff; }
+    .action-btn.del:hover { background: #ef4444; color: #fff; }
 
     /* ── EMPTY STATE ── */
     .empty {
@@ -589,17 +564,12 @@ function renderLinks() {
                 <div class="link-desc">${escHtml(link.desc || link.url)}</div>
               </div>
               <div class="link-actions" onclick="event.stopPropagation()">
-                <button class="kebab-btn" onclick="toggleKebab(event, '${link._id}')">
-                  <i class="bi bi-three-dots-vertical"></i>
+                <button class="action-btn" title="Editar" onclick="editLink('${link._id}')">
+                  <i class="bi bi-pencil"></i>
                 </button>
-                <div class="kebab-menu" id="kebab-${link._id}">
-                  <button class="kebab-item" onclick="editLink('${link._id}')">
-                    <i class="bi bi-pencil"></i> Editar
-                  </button>
-                  <button class="kebab-item del" onclick="deleteLink('${link._id}')">
-                    <i class="bi bi-trash3"></i> Eliminar
-                  </button>
-                </div>
+                <button class="action-btn del" title="Eliminar" onclick="deleteLink('${link._id}')">
+                  <i class="bi bi-trash3"></i>
+                </button>
               </div>
             </div>
           `).join('')}
@@ -613,20 +583,6 @@ function escHtml(str = '') {
 }
 
 function openLink(url) { window.open(url, '_blank'); }
-
-// ── KEBAB MENU ────────────────────────────────────────────────────────────
-function toggleKebab(e, id) {
-  e.stopPropagation();
-  const menu = document.getElementById(`kebab-${id}`);
-  const isOpen = menu.classList.contains('open');
-  // Cierra todos los menús abiertos
-  document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
-  if (!isOpen) menu.classList.add('open');
-}
-// Cierra kebab al hacer click fuera
-document.addEventListener('click', () => {
-  document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
-});
 
 // ── LINK MODAL ────────────────────────────────────────────────────────────
 function openLinkModal(id = null) {
