@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Mi hub de recursos de aprendizaje" />
+  <title>DevLinks</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --brand:     #6366f1;
+      --brand-dk:  #4f46e5;
+      --bg:        #0f172a;
+      --surface:   #1e293b;
+      --surface2:  #273447;
+      --border:    #334155;
+      --text:      #f1f5f9;
+      --muted:     #94a3b8;
+      --radius:    12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+    }
+    .navbar-brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-admin {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .2s;
+    }
+    .btn-admin:hover { background: var(--brand-dk); }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      padding: 1.25rem 1.25rem 0;
+      position: relative;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 10px 14px 10px 40px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-input:focus { border-color: var(--brand); }
+    .search-icon {
+      position: absolute;
+      left: 26px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    /* ── CATEGORIES PILLS ── */
+    .pills-wrap {
+      padding: 1rem 1.25rem 0;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      overflow-x: hidden;
+    }
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .pill.active, .pill:hover {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    /* ── MAIN GRID ── */
+    .main { padding: 1.25rem; overflow-x: hidden; }
+
+    .category-section { margin-bottom: 2rem; }
+    .category-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .category-title i { color: var(--brand); font-size: 1rem; }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+      gap: 12px;
+    }
+
+    /* ── LINK CARD ── */
+    .link-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s, transform .15s;
+      position: relative;
+      cursor: pointer;
+    }
+    .link-card:hover {
+      border-color: var(--brand);
+      transform: translateY(-2px);
+      color: inherit;
+    }
+    .link-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+      color: var(--brand);
+    }
+    .link-info { flex: 1; min-width: 0; }
+    .link-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .link-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* ── KEBAB MENU ── */
+    .link-actions {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .kebab-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 1rem;
+      line-height: 1;
+      transition: background .2s, color .2s;
+    }
+    .kebab-btn:hover { background: var(--surface2); color: var(--text); }
+    .kebab-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 50;
+      min-width: 120px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.4);
+    }
+    .kebab-menu.open { display: block; }
+    .kebab-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: background .15s;
+    }
+    .kebab-item:hover { background: var(--surface2); }
+    .kebab-item.del { color: #ef4444; }
+    .kebab-item.del:hover { background: rgba(239,68,68,.1); }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+    }
+    .empty i { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+
+    /* ── MODAL OVERLAY ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 440px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+      display: block;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-control:focus { border-color: var(--brand); }
+    .form-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+    }
+    .btn-save {
+      width: 100%;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background .2s;
+    }
+    .btn-save:hover { background: var(--brand-dk); }
+
+    /* ── MANAGE CATEGORIES ── */
+    .cat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      font-size: 0.88rem;
+    }
+    .cat-item-del {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .cat-item-del:hover { color: #ef4444; }
+
+    /* ── TOAST ── */
+    .toast-msg {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      z-index: 999;
+      transition: transform .3s;
+      pointer-events: none;
+    }
+    .toast-msg.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── OFFLINE BADGE ── */
+    .offline-badge {
+      display: none;
+      background: #f59e0b;
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    body.offline .offline-badge { display: inline-block; }
+
+    @media (max-width: 576px) {
+      .links-grid { grid-template-columns: 1fr; }
+      .modal-box { border-radius: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    <i class="bi bi-journal-code"></i> DevLinks
+    <span class="offline-badge">Sin conexión</span>
+  </div>
+  <button class="btn-admin" onclick="openAdmin()">
+    <i class="bi bi-gear-fill"></i> Admin
+  </button>
+</nav>
+
+<!-- SEARCH -->
+<div class="search-wrap mt-2">
+  <i class="bi bi-search search-icon"></i>
+  <input class="search-input" id="searchInput" type="text" placeholder="Buscar link..." oninput="renderLinks()" />
+</div>
+
+<!-- PILLS -->
+<div class="pills-wrap" id="pillsWrap"></div>
+
+<!-- MAIN -->
+<main class="main" id="mainContent"></main>
+
+<!-- TOAST -->
+<div class="toast-msg" id="toast"></div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- MODAL: ADD / EDIT LINK                  -->
+<!-- ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="linkModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span id="linkModalTitle">Agregar link</span>
+      <button class="modal-close" onclick="closeLinkModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre *</label>
+      <input class="form-control" id="lName" placeholder="Ej: MkDocs - Node.js" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">URL *</label>
+      <input class="form-control" id="lUrl" placeholder="https://..." />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <input class="form-control" id="lDesc" placeholder="Breve descripción opcional" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoría *</label>
+      <select class="form-select" id="lCat"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ícono (Bootstrap Icon)</label>
+      <input class="form-control" id="lIcon" placeholder="Ej: book, code-slash, globe" />
+      <small style="color:var(--muted);font-size:.75rem;">
+        Ver íconos: <a href="https://icons.getbootstrap.com" target="_blank" style="color:var(--brand)">icons.getbootstrap.com</a>
+      </small>
+    </div>
+    <button class="btn-save" onclick="saveLink()">Guardar</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- MODAL: ADMIN PANEL                      -->
+<!-- ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span>Panel de administración</span>
+      <button class="modal-close" onclick="closeAdmin()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem;">Gestiona categorías y agrega nuevos links.</p>
+
+    <!-- Add link button -->
+    <button class="btn-save" style="margin-bottom:1.25rem" onclick="closeAdmin(); openLinkModal()">
+      <i class="bi bi-plus-lg"></i> Agregar nuevo link
+    </button>
+
+    <!-- Categories section -->
+    <div style="font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;">
+      Categorías
+    </div>
+    <div id="catList"></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <input class="form-control" id="newCatInput" placeholder="Nueva categoría..." style="flex:1" />
+      <button class="btn-save" style="width:auto;padding:9px 16px" onclick="addCategory()">
+        <i class="bi bi-plus-lg"></i>
+      </button>
+    </div>
+
+    <hr style="border-color:var(--border);margin:1.5rem 0" />
+
+    <!-- Danger zone -->
+    <div style="font-size:.8rem;font-weight:600;color:#ef4444;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;">
+      Zona de peligro
+    </div>
+    <button onclick="resetAll()" style="width:100%;background:transparent;border:1px solid #ef4444;color:#ef4444;border-radius:8px;padding:9px;font-size:.85rem;cursor:pointer;">
+      <i class="bi bi-trash3"></i> Borrar todos los datos
+    </button>
+  </div>
+</div>
+
+<script>
+// ── API ───────────────────────────────────────────────────────────────────
+const API = 'https://backend-devlinks.onrender.com/api';
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let activeFilter = 'all';
+let editingId    = null;
+let allLinks     = [];
+let allCats      = [];
+
+// ── API HELPERS ───────────────────────────────────────────────────────────
+async function fetchLinks() {
+  const res = await fetch(`${API}/links`);
+  return res.json();
+}
+async function fetchCats() {
+  const res = await fetch(`${API}/categories`);
+  return res.json();
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    [allLinks, allCats] = await Promise.all([fetchLinks(), fetchCats()]);
+    renderPills();
+    renderLinks();
+  } catch (err) {
+    document.getElementById('mainContent').innerHTML =
+      `<div class="empty"><i class="bi bi-wifi-off"></i><p>No se pudo conectar al servidor</p></div>`;
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderPills() {
+  const all = [{ id: 'all', label: 'Todos' }, ...allCats.map(c => ({ id: c.name, label: c.name }))];
+  document.getElementById('pillsWrap').innerHTML = all.map(c => `
+    <button class="pill ${activeFilter === c.id ? 'active' : ''}" onclick="setFilter('${c.id}')">
+      ${c.label}
+    </button>
+  `).join('');
+}
+
+function setFilter(cat) {
+  activeFilter = cat;
+  renderPills();
+  renderLinks();
+}
+
+function renderLinks() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const main = document.getElementById('mainContent');
+
+  const filtered = allLinks.filter(l => {
+    const matchFilter = activeFilter === 'all' || l.cat === activeFilter;
+    const matchSearch = !q || l.name.toLowerCase().includes(q) || (l.desc || '').toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+
+  if (!filtered.length) {
+    main.innerHTML = `<div class="empty"><i class="bi bi-search"></i><p>No se encontraron links</p></div>`;
+    return;
+  }
+
+  const catNames = activeFilter === 'all' ? allCats.map(c => c.name) : [activeFilter];
+  const grouped  = {};
+  catNames.forEach(c => { grouped[c] = []; });
+  filtered.forEach(l => {
+    if (!grouped[l.cat]) grouped[l.cat] = [];
+    grouped[l.cat].push(l);
+  });
+
+  const catIcons = {
+    'Documentación': 'file-text', 'Cursos': 'mortarboard', 'Libros': 'book',
+    'Herramientas': 'tools', 'Otros': 'grid'
+  };
+
+  main.innerHTML = Object.entries(grouped)
+    .filter(([, arr]) => arr.length)
+    .map(([cat, arr]) => `
+      <section class="category-section">
+        <div class="category-title">
+          <i class="bi bi-${catIcons[cat] || 'folder'}"></i> ${cat}
+          <span style="margin-left:auto;font-size:.7rem;color:var(--muted)">${arr.length}</span>
+        </div>
+        <div class="links-grid">
+          ${arr.map(link => `
+            <div class="link-card" onclick="openLink('${escHtml(link.url)}')">
+              <div class="link-icon"><i class="bi bi-${escHtml(link.icon || 'link-45deg')}"></i></div>
+              <div class="link-info">
+                <div class="link-name">${escHtml(link.name)}</div>
+                <div class="link-desc">${escHtml(link.desc || link.url)}</div>
+              </div>
+              <div class="link-actions" onclick="event.stopPropagation()">
+                <button class="kebab-btn" onclick="toggleKebab(event, '${link._id}')">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <div class="kebab-menu" id="kebab-${link._id}">
+                  <button class="kebab-item" onclick="editLink('${link._id}')">
+                    <i class="bi bi-pencil"></i> Editar
+                  </button>
+                  <button class="kebab-item del" onclick="deleteLink('${link._id}')">
+                    <i class="bi bi-trash3"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `).join('');
+}
+
+function escHtml(str = '') {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openLink(url) { window.open(url, '_blank'); }
+
+// ── KEBAB MENU ────────────────────────────────────────────────────────────
+function toggleKebab(e, id) {
+  e.stopPropagation();
+  const menu = document.getElementById(`kebab-${id}`);
+  const isOpen = menu.classList.contains('open');
+  // Cierra todos los menús abiertos
+  document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
+  if (!isOpen) menu.classList.add('open');
+}
+// Cierra kebab al hacer click fuera
+document.addEventListener('click', () => {
+  document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
+});
+
+// ── LINK MODAL ────────────────────────────────────────────────────────────
+function openLinkModal(id = null) {
+  editingId = id;
+  document.getElementById('lCat').innerHTML = allCats.map(c =>
+    `<option value="${escHtml(c.name)}">${escHtml(c.name)}</option>`
+  ).join('');
+
+  if (id) {
+    const link = allLinks.find(l => l._id === id);
+    document.getElementById('linkModalTitle').textContent = 'Editar link';
+    document.getElementById('lName').value = link.name;
+    document.getElementById('lUrl').value  = link.url;
+    document.getElementById('lDesc').value = link.desc || '';
+    document.getElementById('lCat').value  = link.cat;
+    document.getElementById('lIcon').value = link.icon || '';
+  } else {
+    document.getElementById('linkModalTitle').textContent = 'Agregar link';
+    document.getElementById('lName').value = '';
+    document.getElementById('lUrl').value  = '';
+    document.getElementById('lDesc').value = '';
+    document.getElementById('lIcon').value = '';
+  }
+  document.getElementById('linkModal').classList.add('open');
+}
+
+function closeLinkModal() {
+  document.getElementById('linkModal').classList.remove('open');
+}
+
+function editLink(id) { openLinkModal(id); }
+
+async function saveLink() {
+  const name = document.getElementById('lName').value.trim();
+  const url  = document.getElementById('lUrl').value.trim();
+  const desc = document.getElementById('lDesc').value.trim();
+  const cat  = document.getElementById('lCat').value;
+  const icon = document.getElementById('lIcon').value.trim();
+
+  if (!name || !url) { showToast('Nombre y URL son requeridos'); return; }
+  if (!url.startsWith('http')) { showToast('La URL debe empezar con http(s)://'); return; }
+
+  try {
+    if (editingId) {
+      await fetch(`${API}/links/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, url, desc, cat, icon })
+      });
+      showToast('Link actualizado');
+    } else {
+      await fetch(`${API}/links`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, url, desc, cat, icon })
+      });
+      showToast('Link agregado');
+    }
+    closeLinkModal();
+    await loadAll();
+  } catch (err) {
+    showToast('Error al guardar');
+  }
+}
+
+async function deleteLink(id) {
+  if (!confirm('¿Eliminar este link?')) return;
+  try {
+    await fetch(`${API}/links/${id}`, { method: 'DELETE' });
+    showToast('Link eliminado');
+    await loadAll();
+  } catch (err) {
+    showToast('Error al eliminar');
+  }
+}
+
+// ── ADMIN MODAL ───────────────────────────────────────────────────────────
+function openAdmin() {
+  renderCatList();
+  document.getElementById('adminModal').classList.add('open');
+}
+function closeAdmin() {
+  document.getElementById('adminModal').classList.remove('open');
+}
+
+function renderCatList() {
+  document.getElementById('catList').innerHTML = allCats.map(c => `
+    <div class="cat-item">
+      <span><i class="bi bi-tag" style="margin-right:6px;color:var(--brand)"></i>${escHtml(c.name)}</span>
+      <button class="cat-item-del" onclick="deleteCat('${c._id}')"><i class="bi bi-x-lg"></i></button>
+    </div>
+  `).join('') || '<p style="color:var(--muted);font-size:.85rem">Sin categorías aún.</p>';
+}
+
+async function addCategory() {
+  const val = document.getElementById('newCatInput').value.trim();
+  if (!val) return;
+  if (allCats.find(c => c.name === val)) { showToast('Esa categoría ya existe'); return; }
+  try {
+    await fetch(`${API}/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: val })
+    });
+    document.getElementById('newCatInput').value = '';
+    showToast('Categoría agregada');
+    await loadAll();
+    renderCatList();
+  } catch (err) {
+    showToast('Error al agregar categoría');
+  }
+}
+
+async function deleteCat(id) {
+  const cat = allCats.find(c => c._id === id);
+  if (!confirm(`¿Eliminar la categoría "${cat.name}"?\nLos links de esa categoría quedarán en "Otros".`)) return;
+  try {
+    await fetch(`${API}/categories/${id}`, { method: 'DELETE' });
+    showToast('Categoría eliminada');
+    await loadAll();
+    renderCatList();
+  } catch (err) {
+    showToast('Error al eliminar categoría');
+  }
+}
+
+async function resetAll() {
+  if (!confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) return;
+  try {
+    const links = await fetchLinks();
+    const cats  = await fetchCats();
+    await Promise.all([
+      ...links.map(l => fetch(`${API}/links/${l._id}`, { method: 'DELETE' })),
+      ...cats.map(c  => fetch(`${API}/categories/${c._id}`, { method: 'DELETE' }))
+    ]);
+    closeAdmin();
+    await loadAll();
+    showToast('Datos borrados');
+  } catch (err) {
+    showToast('Error al borrar datos');
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── OFFLINE ───────────────────────────────────────────────────────────────
+window.addEventListener('online',  () => document.body.classList.remove('offline'));
+window.addEventListener('offline', () => document.body.classList.add('offline'));
+if (!navigator.onLine) document.body.classList.add('offline');
+
+// ── CLOSE MODAL ON BACKDROP ───────────────────────────────────────────────
+['linkModal','adminModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target.id === id) document.getElementById(id).classList.remove('open');
+  });
+});
+
+// ── SERVICE WORKER ────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(console.error);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>
